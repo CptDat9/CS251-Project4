@@ -125,5 +125,10 @@ npx hardhat run scripts/deploy.js
 - Git: Dùng để quản lý và theo dõi các thay đổi của project.
 - Hardhat Network: Cho phép thử nghiệm tính năng mà không cần sử dụng phí gas thực.
 - BSC Testnet: Là môi trường triển khai chính của dự án này.
+## Minh họa
+![image](https://github.com/user-attachments/assets/46909f7b-a20a-4ebe-a7cf-dfff0d90b6b5)
+![image](https://github.com/user-attachments/assets/b02dd1e5-4a53-4b2f-a8a3-3b71b727ed59)
+
+
 
 
