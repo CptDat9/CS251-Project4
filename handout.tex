@@ -1,0 +1,354 @@
+\documentclass[11pt]{article}
+\usepackage{epsfig,amsfonts,amsmath,amssymb,graphics,fullpage}
+
+\newcommand{\comment}[1]{}
+\newcommand{\deq}{\mathrel{:=}}
+\newcommand{\cat}{\mathrel{\|}}
+\newcommand{\KK}{\mathcal{K}}  % key space
+\newcommand{\XX}{\mathcal{X}}   % input space
+\newcommand{\YY}{\mathcal{Y}}   % output space
+\newcommand{\MM}{\mathcal{M}}   % output space
+\newcommand{\CC}{\mathcal{C}}   % output space
+\newcommand{\CIPHER}{\mathcal{E}}   % cipher
+
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\topskip}{0in}
+
+\newcommand{\lcat}{\langle}
+\newcommand{\rcat}{\rangle}
+\newcommand{\tuple}[1]{\lcat #1 \rcat}
+
+\newcommand{\DES}{{\sf DES}}
+
+\newcommand{\xor}{\oplus}
+\newcommand{\Z}{\mathbb{Z}}    
+\newcommand{\adv}{\mathcal{A}}
+\newcommand{\bdv}{\mathcal{B}}
+\newcommand{\rgets}{\stackrel{\scriptscriptstyle{R}}{\leftarrow}}
+\newcommand{\EXP}{\textrm{EXP}}
+
+
+\newenvironment{myalg}{\begin{list}{}{
+        \setlength{\labelwidth}{0.5cm}
+        \setlength{\leftmargin}{1cm}
+        \setlength{\itemsep}{0cm}
+        \setlength{\topsep}{0cm}
+        \setlength{\parsep}{0.05cm}}}{\end{list}}
+
+\newcommand{\squish}{
+      \setlength{\topsep}{0pt}
+      \setlength{\itemsep}{0ex}
+      \vspace{-1ex}
+      \setlength{\parskip}{0pt}}
+\newcommand{\squishend}{\vskip -1ex\relax}
+
+%\newcommand{\solution}[1]{\noindent{\bf Solution:} {\it {#1}}}
+\newcommand{\solution}[1]{}
+
+
+%%%%%%%%
+\usepackage{enumitem}
+
+\newenvironment{problems}
+{\begin{enumerate}[label=\bfseries Exercise \arabic*.,align=left]}
+{\end{enumerate}}
+
+\newenvironment{subparts}
+{\begin{enumerate}[label=\bfseries \alph*.,align=right,leftmargin=1.5em]}
+{\end{enumerate}}
+%%%%%%%%
+
+\usepackage{hyperref}
+\usepackage{comment}
+\begin{document}
+
+\newlength{\boxwidth}
+\setlength{\boxwidth}{\textwidth}
+\addtolength{\boxwidth}{-2cm}
+\framebox[\textwidth]{
+\begin{minipage}[t]{\boxwidth}
+{\bf CS251: Cryptocurrencies and Blockchain Technologies \hfill Fall 2023}  \\[-0.3cm]
+\begin{center} {\huge Programming Project \#4} \end{center}
+Due: 11:59pm on {\bf Tue. Nov. 28, 2023} \\
+Submit via Gradescope code: {\bf 7DVJKY}
+\end{minipage}}
+
+\vspace{1cm}
+
+For this project, you will be working on a web client and two Solidity contracts to implement a decentralized cryptocurrency exchange. By the end of the project, your exchange will have much of the functionality possessed by full fledged decentralized exchanges such as \href{https://uniswap.org/}{Uniswap}. Additionally, you will create your own \href{https://ethereum.org/en/developers/docs/standards/tokens/erc-20/}{ERC20} token, which you will then trade over your exchange.
+
+Throughout this project, make sure to write code that is resilient against adversarial attacks. Remember that attackers can call your smart contracts with arbitrary inputs, not just through the provided user interface. As such, make liberal use of \texttt{require} statements to test any assumptions baked into your code. %Additionally, \textbf{for all arithmetic operations on the blockchain, use the SafeMath library}. We provide the \texttt{SafeMath} library for you in the starter code, and \texttt{exchange.sol} and \texttt{token\_contract.sol} contain examples of proper usage. There's real fake money at stake here, so it should not be possible for an enterprising attacker to rip off your exchange.
+
+% no longer needed with new solidity version
+
+For most students, this project will likely represent their most comprehensive project implemented so far in Solidity. As such, we encourage you to start early and ask questions. We will guide you through implementing a decentralized exchange in several phases, and we believe your end product will give you something to be very proud of! Let's get started.
+
+As part of this, we will also build a user interface that computes useful information for the user and allows non-programmers to use the DApp.
+
+\section{Getting Started}
+\subsection{Setup}
+\begin{enumerate}
+\item Install the prerequisite software: you'll need to download and install Node.js. Hardhat only supports Node.js V12.xx, 14.xx, and 16.xx. You can find the previous releases \hyperlink{https://nodejs.org/en/download/releases}{here}, and select an appropriate version to install. 
+
+\item Download and extract the starter code from the course website.
+
+\item \verb|cd| into the starter code directory.
+
+\item Run \verb|npm install --save-dev hardhat| to install the Ethereum development environment Hardhat, which you will use to simulate an Ethereum node on your local machine. If you encounter an error in regards to an incompatible Node version, please install a supported Node.js version and use \texttt{nvm use <version>} to switch to it.
+
+\item Run \verb|npm install --save-dev @nomiclabs/hardhat-ethers ethers| to install a Hardhat plugin to deploy a Hardhat node which your scripts will use.
+
+\item Run \verb|npm install --save-dev @openzeppelin/contracts| to install OpenZeppelin libraries. 
+\end{enumerate}
+
+\subsection{Compile, Deploy and Test}
+
+\begin{enumerate}
+    \item You'll be modifying \verb|contracts/token.sol| and \verb|contracts/exchange.sol| to define your Solidity contracts and \verb|web_app/exchange.js| to build the Javascript backend. Looking at the other files may help understand how the Hardhat node and web client works. There are places marked with functions to modify and you can add helper functions to the three files listed above. Please do not modify any other code or install additional node packages.
+    \item Peruse the starter code, the \hyperlink{https://docs.ethers.io/v5/}{ethers.js documentation}, the \hyperlink{https://docs.soliditylang.org/en/v0.8.17/}{Solidity} documentation, and the \hyperlink{https://docs.openzeppelin.com/contracts/4.x/erc20}{OpenZeppelin} ERC-20 contract implementation. Think carefully about the overall design of your system before you write code. What data should be stored on chain? What computation will be done by the contract vs. on the client?
+    \item After you finish implementation, run \verb|npx hardhat node| to start the local node. If the node is started correctly, you should see in terminal: \textit{Started HTTP and WebSocket JSON-RPC server at https://localhost:8545}
+    \item \textbf{Deploying the Contracts:} Open another terminal tab or window, and \verb|cd| into the starter code directory. \\Run \verb|npx hardhat run --network localhost scripts/deploy_token.js| to compile and deploy your token contract. Upon success, you should see this message on the terminal: \texttt{Successfully wrote token address <token\_address> to token\_address.txt}. Copy that value and paste it into the ${\texttt{address tokenAddr}}$ field in ${\texttt{contracts/exchange.sol}}$. Alternatively copy it from \texttt{token\_address.txt} in your \texttt{proj4} directory.
+ 
+    \item Run \verb|npx hardhat run --network localhost scripts/deploy_exchange.js| to deploy your exchange contract. Upon success, you should see \texttt{Successfully wrote token address <exchange\_address> to exchange\_address.txt}. Save that value value for the next step. Alternatively copy it from \texttt{exchange\_address.txt} in your \texttt{proj4} directory. \\
+    Step 5 is the same as Step 4 but instead for the contract ${\texttt{exchange.sol}}$. The newly created contract address will be copied in Step 6.
+    
+    \item \textbf {Update the contract address and ABI} in \verb|web_app/exchange.js|. \\ Update the \verb|const token_address| and \verb|const exchange_address| variables with the two contract addresses. Unlike in Solidity, the addresses in Javascript do not need to be checksummed.  \\ \\
+    The ABIs can be copied from \verb|artifacts/contracts/token.sol/token.json| and \\ \verb|artifacts/contracts/exchange.sol/exchange.json|. To correctly update the ABI, please copy the whole list after the `abi' field, starting from the square bracket. The address is saved in the previous step. Make sure your contract address is a string.
+    \item Open the \verb|web_app/index.html| file in your browser. Until you have finished implementing Section 3 (\verb|contracts/token.sol|), there will be an error in the browser console. Otherwise, you can play around with the page, and run sanityCheck! See Section 10 for more details.
+\end{enumerate}
+
+\textbf{Note on OSs:} All of the above steps should work on Unix-based systems and Windows. The commands we ask you to execute will work in a standard Unix terminal and the Windows Command Prompt.
+
+\section{Components}
+
+The project has three major components: 
+\begin{itemize}
+    \item \texttt{contracts/token.sol} is a smart contract written in Solidity that will be deployed on the blockchain. You will have to modify it to create and deploy your own token. See Section 3 for implementation details.
+    \item \texttt{contracts/exchange.sol} is another smart contract written in Solidity that will be deployed on the blockchain. You will have to modify it to create and deploy a decentralized exchange (DEX), also called an automated market maker (AMM), modeled after \href{https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf}{Uniswap V1}. See Section 4 for implementation details.
+    \item \texttt{web\_app/exchange.js} is a client running locally in a web browser written in JavaScript. It observes the blockchain using the ethers.js library and can calls functions in the smart contracts \texttt{token.sol} and \texttt{exchange.sol}. See Section 4 for more details. For more information on how ethers.js works and setting up this assignment, watch the Section 5 recording on Panopto.
+\end{itemize}
+
+Also, file \texttt{web\_app/index.html} when opened in your browser (works best in Chrome) allows you to access the user interface through which you can test your exchange. On this page, you can pick an address and add liquidity, remove liquidity, and swap your token for ETH and vice-versa. This file and other files should not be modified. Only \texttt{token.sol}, \texttt{exchange.sol} and \texttt{exchange.js} should be modified.
+
+\begin{comment}
+\section{Getting Started}
+\begin{enumerate}
+\textbf{TODO: CHANGE TO SETUP USING HARDHAT \newline}
+\item If you haven't done so for the previous project, you'll need to download and install Node.js from \url{https://nodejs.org/en/}. Choose the LTS version (the one on the left).
+
+\item If you haven't done so for the previous project, run \verb|npm install -g ganache-cli| to install the Ganache CLI, which we will use to simulate a real Ethereum node on our local machines. Then, run \verb|ganache-cli| to run the node. You can stop the node at anytime with Ctrl-C.
+
+\item Download the starter code from the class website and open it in your favorite IDE or text editor (something like Sublime Text, Atom, or Visual Studio Code works nicely). Familiarize yourself with the code base. For this project, you are expected to fill in the \texttt{exchange.sol} and \texttt{exchange.js} files. You may add helper functions to these two files if needed. 
+
+\item Open \url{https://remix.ethereum.org} in your web browser. In the `Deploy \& Run Transactions' tab, set the environment to `Web3 Provider', click `Ok' when prompted, and then set the `Web3 Provider Endpoint' to \verb|http://localhost:8545| - this should be the default. This is where you will develop your smart contract (which you will write in Solidity). In the `Solidity Compiler' tab, set the compiler to version 0.8.0+.
+
+\item Under the "File explorers" tab on Remix, click the upload icon underneath "default\_workspace." Upload the entire \texttt{contracts}, \texttt{interfaces}, and \texttt{libraries} directories from the starter code. After uploading, you should see the \texttt{contracts/exchange.sol}, \texttt{contracts/token.sol}, \\ \texttt{libraries/safe\_math.sol}, and \texttt{interfaces/erc20\_interface.sol} files in your Remix "File explorers" tab.
+
+\item Open \texttt{index.html} in your browser (works best in Chrome) to access the user interface through which you can test your exchange. On this page, you can pick an address and add liquidity, remove liquidity, and swap your token for ETH and vice-versa.
+
+\item It's very helpful to also open your browser's JavaScript console, so that you can see \texttt{console.log()} messages and error messages. If everything so far is working, you should see no errors in the console (you can safely ignore warnings).
+
+\item Implement code for the requirements outlined below. When you have your contract, compile and deploy it, and then \textbf{update the contract address and ABI} at the top of \texttt{exchange.js}. The ABI can be copied to the clipboard from the `Solidity Compiler' tab, and the contract hash can be copied from the `Deploy and Run Transactions' tab. Note that the contract hash is \textit{not} the transaction hash of the transaction that created the contract.
+
+\\ \\
+TODO: Add instructions on installing openzepellin: npm install @openzeppelin/contracts
+
+\end{enumerate}
+\end{comment}
+
+\section{Create and Deploy Your Own Token}
+
+In the first part of this project, you will create and deploy your own ERC-20 token. ERC-20, as mentioned in class, is a standard for implementing fungible tokens. Luckily for us, much of the code for ERC-20 standard has already been written and is open source. In this project, we will use the standard ERC-20 implementation from the \href{https://openzeppelin.com/contracts/}{OpenZeppelin} project. Make sure you understand the \href{https://ethereum.org/en/developers/docs/standards/tokens/erc-20/}{ERC-20 standard}, as well as the OpenZeppelin implementations of \href{https://docs.openzeppelin.com/contracts/4.x/erc20}{ERC-20} and \href{https://docs.openzeppelin.com/contracts/2.x/access-control}{Ownable}.
+
+Once you've read through the starter code, complete the following steps in \verb|contracts/token.sol| and \verb|web_app/exchange.js|:
+\begin{enumerate}
+    \item Come up with a fun (but appropriate!) name for your token. Set the private string \verb|_name| of \verb|token.sol| to be the name of your token. In addition, update the \verb+token_name+ variable at the top of \texttt{exchange.js} to be the same name.
+    
+    \item Decide on a short symbol for your token (e.g. ETH, instead of Ethereum). Set the private string \verb|_symbol| to be that symbol, and update the \texttt{token\_symbol} variable at the top of \texttt{exchange.js} with the same name.
+    \item Implement minting functionality in the token contract. You will primarily do this with \texttt{mint(uint amount)} and \texttt{disable\_mint()} functions but you may add to the contract however you choose. \texttt{mint} is a public function that creates \texttt{amount} tokens. You can do this by using the inherited OpenZeppelin ERC-20 contract function \href{https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20-_mint-address-uint256-}{\texttt{\_mint(address, uint256)}}. \texttt{disable\_mint()} makes it such that calling \texttt{mint()} will never succeed again. As such, your \texttt{mint} implementation must fail if \texttt{disable\_mint()} has been called. Also note the \texttt{Ownable} modifier on both functions, which makes it such that only the contract administrator can call either one.
+    
+    \item Deploy your token contract. Copy the address and ABI of the token contract to the \texttt{token\_address} and \texttt{token\_abi} variables in \texttt{exchange.js}.
+    
+    \item Lastly, copy the address of the token contract to the \texttt{tokenAddr} variable in \texttt{exchange.sol}. Remember to use the checksummed version of the address in the contract. \textbf{Every time you redeploy your token contract, you must repeat this step.}
+\end{enumerate}
+
+After completing the above steps, you should have your own token all deployed on Hardhat! \\
+
+Follow the steps 3-7 as in section 1.2 once again and you should now have a working token! All the functionality except initial pool setup (which we implemented for you) will be missing. That said, if you have completed Section 2 and the deployment process properly, you should see no errors occur in your browser console and should see a $1$-to-$1$ exchange rate between ETH and your token. There should be 5000 ETH and 5000 of your tokens in under the "Current Liquidity" display.
+
+\section{Setting Up Your Basic Exchange}
+
+In this part of the assignment, you will implement the basic functionality of your cryptocurrency exchange. Our exchange is modeled after \href{https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf}{Uniswap V1}. Your exchange will only allow for swaps between your Token and test ETH. The changes in this section will primarily affect two files: \texttt{exchange.js} and \texttt{exchange.sol}. Familiarize yourself with the starter code for those files. 
+
+A decentralized exchange consists of two types of participants: traders and liquidity providers (LP).
+\subsection{Trading/Swapping}
+When traders swap between the two currencies, they will add some amount of one currency to the liquidity pool, and will be sent an equal value of the other currency from the pool. The exchange rate between the two currencies is determined by the constant product formula:
+\begin{quote}
+Let $x$ be the amount of currency $A$ that is in the liquidity pool, and let $y$ be the amount of currency $B$. Let $k$ be some constant. After every swap, it must be true that
+$$ x * y = k.$$
+\end{quote}
+During each swap, the exchange must send out the correct amount of the swapped-to currency such that this formula holds. The price of currency $B$ in terms of currency $A$ can the be calculated as $x / y$, whereas the price of currency $A$ in terms of currency $B$ can be calculated as $y / x$. Every swap will thus modify the exchange rate. This makes sense, as each swap is an indication of demand for a given currency.
+
+\subsection{Adding and Removing Liquidity}
+When a liquidity provider adds/removes liquidity, they must provide/withdraw equal values of currency $A (\Delta x)$ and $B (\Delta y)$, as determined by the current exchange rate.
+$$\frac{x_{cur}}{y_{cur}} =  \frac{x_{cur}+\Delta x}{y_{cur}+ \Delta y} = \frac{x_{new}}{y_{new}}$$
+This will result in a change in the value of $k$ which is the product of the reserves of each token:
+$$ k_{new} = x_{new} * y_{new} = (x_{cur}+\Delta x) * (y_{cur}+ \Delta y)$$
+
+This has another notable consequence: since a liquidity provider can only withdraw equal values of each currency, they are not actually entitled to withdraw their exact initial investment (in terms of quantity of each token). Rather, providing liquidity is analagous to owning a percentage share of the liquidity pool, which the provider is then entitled to withdraw at a later time. A liquidity provider who provided 10\% currency $A$ and currency $B$ is entitled to withdraw 10\% of each of the reserves for those currencies. Note that your percentage share depends on the behaviour of other LPs. For example if another LP adds liquidity your percentage share decreases.
+
+\subsection{Basic Implementation}
+With the above in mind, you will now implement the basic functionality of your exchange. We take care of initializing the pool for you by implementing and calling the \texttt{createPool} function. We take ETH and tokens from the first address to initialize the pool, and \textit{you do not need to track this initial amount when tracking liquidity providers}. \textbf{In order for other addresses to obtain tokens and/or provide liquidity, they must first swap for tokens on the exchange.} In \texttt{exchange.sol}, implement the following functions:
+\begin{itemize}
+    \item \texttt{function addLiquidity() external payable}:\\ Add liquidity to the pool if the provider possesses sufficient ETH and tokens (otherwise the transaction should fail). The caller will send ETH to the contract, which can be accessed using \texttt{msg.value}. This function should also transfer the equivalent amount of tokens based on the current exchange rate from the sender's address to the contract (using the token's \texttt{transfer} or \texttt{transferFrom} method), and update the exchange state accordingly. The transaction must fail if the provider's funds are insufficient. See Section 9 for advice on how to best keep track of liquidity. 
+    \item \texttt{function removeLiquidity(uint amountETH) public payable}:\\ Remove a specified amount of liquidity from the pool (if the provider is entitled to remove given amount of liquidity) and update the exchange state accordingly. \texttt{amountETH} is numeric amount of ETH the liquidity provider wants to take out, so they should receive a total value equivalent to \texttt{2 * amountETH} after they receive tokens and ETH. Be sure to update the amount of liquidity provided by each liquidity provider accordingly. The function should fail if users try to remove more liquidity than they are entitled to, or if they try to deplete the ETH or token reserves to 0.
+    \item \texttt{function removeAllLiquidity() external payable}:\\ Remove the maximum amount of liquidity that the sender is allowed to remove and update the exchange state accordingly. In addition, be sure to update the amount of liquidity provided by each liquidity provider. Similarly, this function should fail if the liquidity provider will drain the ETH or token reserves to 0.
+    \item \texttt{function swapTokensForETH(uint amountTokens) external payable}:\\ Swap the given amount of tokens for the equivalent value of ETH and update the exchange state accordingly. If the provider does not have sufficient tokens for the swap, the transaction should fail. Additionally, if completing the swap would completely remove all ETH from the pool, the transaction should fail to avoid having zero ETH and (therefore) an undefined exchange rate. Be sure to leave at least 1 ETH and 1 token in the pool at all times.
+    \item \texttt{function swapETHForTokens() external payable}:\\ Swap the given amount of ETH for the equivalent value in your token and update the exchange state accordingly. Similar to \texttt{addLiquidity()}, the sender would send ETH into the contract, which can be accessed through \texttt{msg.value}. If completing the swap would completely remove all tokens from the pool, the transaction should fail to avoid having zero tokens and (therefore) an undefined exchange rate. Be sure to leave at least 1 ETH and 1 token in the pool at all times.
+\end{itemize}
+
+In each of the above functions, be sure that you are adjusting \texttt{token\_reserves}, \texttt{eth\_reserves}, and/or \texttt{k} in the correct way such that the exchange is always on the constant product curve described above. Additionally, be sure that functions fail when the caller does not possess sufficient funds. Finally, remember to set \texttt{address tokenAddr} to be your deployed token contract's address. You can now run \texttt{npx hardhat run --network localhost scripts/deploy\_exchange.js} to debug and deploy your code. \\
+
+    \textbf{Round-off errors.} When a swap happens round off errors can occur meaning that product \texttt{eth\_reserves * token\_reserves} is not strictly equal to \texttt{k}. You should attempt to minimize these round-off errors (discussed in Section 9), however it is ok if \texttt{eth\_reserves * token\_reserves} deviates slightly from \texttt{k}. \textit{The only times that you need to update} \texttt{k} \textit{is when adding or removing liquidity.}
+
+\section{Implementing the Backend}
+After you finish implementing the contract functions, implement the following functions in \texttt{exchange.js}. You can ignore the \texttt{maxSlippagePct} variable for now -- this will be used in Section 6. For the most part, these would just call the token and exchange functions you wrote above:
+\begin{itemize}
+    \item async function addLiquidity(amountEth, maxSlippagePct)
+    \item async function removeLiquidity(amountEth, maxSlippagePct)
+    \item async function removeAllLiquidity(maxSlippagePct)
+    \item async function swapTokensForETH(amountToken, maxSlippagePct)
+    \item async function swapETHForTokens(amountEth, maxSlippagePct)
+\end{itemize}
+
+    \textbf{Approving token transfers.} In order for a third-party address (for example, the contract) to send tokens on your behalf, you must first grant them permission to by using the token contract's approve() function. This function would need to be initiated by the user, you will not be able to run approve() from the contract itself. Thus, be sure to call this function in the Javascript before calling the exchange function when appropriate. The details of this function can be found in Openzeppelin's ERC20 implementation.\\
+
+You can call contract code with \texttt{await contract.connect(anotherSigner).functionName(args)}. For more syntax help, we strongly encourage you to check out the \hyperlink{https://docs.ethers.io/v5/getting-started/}{ethers.js documentation}, as well as Section 9 for some tips.
+
+
+Once you've fully implemented your smart contract and the corresponding JavaScript code, update the \texttt{token\_abi} and \texttt{exchange\_abi} variables at the top of the file, and copy the contract addresses to the \texttt{token\_address} and \texttt{exchange\_address} variables in \texttt{exchange.js}. Be sure to include the outermost brackets when copying the ABI. If you reload \texttt{index.html}, you should now be able to provide liquidity, remove liquidity, and perform swaps.
+
+ 
+\section{Handling Slippage}
+
+There is a significant issue with our exchange as we implemented it in Section 3, as it does not account for "slippage". Recall that with every swap on a decentralized exchange, the exchange rate will shift. Since many users may be trying to swap currency at once on a decentralized exchange, there may be a shift in the exchange rate between the submission of a swap transaction and the actual processing of that transaction. Another cause of slippage is when the slippage when your trade is large relative to the size of the liquidity pool. This would mean that the amount of currency you receive back is far lower so that $k$ is maintined. Any shift in the exchange rate between the exchange's quote price and actual price is called "slippage." Slippage is of particular concern while trading volatile assets. For traders, if a user submits a swap transaction to swap some amount of currency $A$ for currency $B$, and then the price of currency $B$ dramatically increases from the quote price, the user might not actually wish to complete the swap transaction. For LPs slippage is bad because it can results in \href{https://finematics.com/impermanent-loss-explained/}{impermanent loss}.
+
+\begin{comment}
+    Additionally, not sufficiently handling opens users up to a type of attack known as a sandwich attack. A sandwich attack works as follows:
+\begin{enumerate}
+    \item Alice submits a swap transaction to convert some large amount of currency $A$ into currency $B$.
+    \item An adversary sees Alice's transaction and front-runs it with a very large purchase of currency $B$, thus raising the price of asset $B$.
+    \item Alice buys currency $B$ at the new higher price, even further raising the price of currency $B$.
+    \item The attacker then immediately sells all their newly acquired currency $B$ at the higher price, making a quick profit.
+\end{enumerate}
+
+Vulnerability to sandwich attacks is bad for users of a decentralized exchange, as users consistently pay higher exchange rates than the true asset value. As such, it is important that we upgrade our exchange to properly handle slippage and defend against sandwich attacks.
+
+The most common defense against sandwich attacks is to allow users to set some maximum slippage while submitting the transaction. 
+
+\end{comment}
+The most common way to deal with slippage is to allow users to set some maximum slippage while submitting the transaction. This parameter, typically a percentage, will cause the transaction to fail if the price of the assets has changed by more than the maximum allowed slippage. To implement a maximum slippage requirement, perform the following steps:
+\begin{enumerate}
+    \item In \texttt{exchange.sol}, update your \texttt{swapTokensForETH} and \texttt{swapETHForTokens} functions to take in a \texttt{uint max\_exchange\_rate} parameter. You may also pass in additional or different parameters if needed for your design. While swapping, the swap should fail if the current price of the new asset (i.e. the asset the user is swapping to) has increased to more than the maximum exchange rate. Note that the price of the asset decreasing is good for the user, so we don't have to fail in that case. \textbf{See section 9 for advice on how to handle underflow issues with the exchange rates}. For example if trading 100 ETH and expect 100 Tokens with 5\% slippage, the contract should reject any situation where the trader would receive fewer than 95 Tokens.
+    \item Update \texttt{addLiquidity}, \texttt{removeLiquidity}, and \texttt{removeAllLiquidity} functions to take in \\
+    \texttt{uint max\_exchange\_rate} and \texttt{uint min\_exchange\_rate} parameters. Similarly, you may pass in other parameters if needed for your design. While providing liquidity, the transaction should fail if the exchange rate has changed significantly i.e. increased to more than the maximum exchange rate or fallen below the minimum exchange rate. This is because exchange rate shifts in either direction can subject providers to impermanent loss before they deposit their liquidity. \textbf{Again see section 9 for advice on how to handle underflow issues with the exchange rates}.
+    \item Now update your \texttt{exchange.js} file to communicate with the contract about the max/min exchange rates. The \texttt{maxSlippagePct} parameter is provided, which represents the maximum allowable percent price change before the transaction should fail. In testing and in the browser interface, this parameter is passed as an int, not as a float - i.e. 4\% is passed as $4$, not $0.04$. This parameter can be used in each of the JavaScript functions to calculate the correct values for \texttt{max\_exchange\_rate} and/or \texttt{min\_exchange\_rate}, which can then be passed to the contract. The \texttt{getPoolState} function that we provide to you may be useful here.
+\end{enumerate}
+
+As always, after updating your contract make sure to recompile, redeploy, and copy the new ABI and contract address to the variable at the top of your \texttt{exchange.js} file. At this point, you can also uncomment the sanityCheck() function to check your implementation. See Section 10 for more details about the sanityCheck. 
+
+\section{Rewarding Liquidity Providers}
+
+After completing the above sections, you now have a working exchange that allows users to limit the amount of slippage they wish to tolerate! There is one more big issue, however. We have discussed several times how liquidity providers are taking on risk in the form of impermanent loss. That is, the value of their liquidity stake may decrease if the price of either asset changes. In practice, since many cryptocurrencies are quite volatile, this is a level of risk that no liquidity provider would be willing to take on for free.
+
+As such, we need to incentivize liquidity providers to give liquidity to the pool. In real world exchanges, liquidity providers are incentivized to provide liquidity because they receive a small fee from every swap transaction. For the basic implementation in this assignment, these fees are stored in separate rewards pools on behalf of each liquidity provider (\texttt{eth\_fee\_reserves} and \texttt{token\_fee\_reserves}). When a provider goes to withdraw their liquidity and are removing fraction $f$ of total liquidity, they should receive fraction $f$ of all the rewards.
+Ordinarily what ought to be returned to lps when they remove liquidity is the all of rewards awarded to them since they entered the liquidity pool. \textbf{You do not need to do this for full credit} but extra credit will be awarded for this implementation as described in Section 7.1.
+
+You will now implement the same fee reward scheme for liquidity providers. \textbf{You are free to design your own as long as it meets the requirements stated at the end of this section. However, we strongly suggest the following one, explained in plain text.} 
+
+\begin{itemize}
+    \item Each liquidity provider has ownership of a fraction $f$ of the mining pool. This fraction is stored in the smart contract for each liquidity provider (ie. the \texttt{lps} mapping stores the number of shares for each address). For this assignment, we'll be setting the swap fee to $3\%$ to aid with the autograder, as represented by the \texttt{swap\_fee\_numerator} and \texttt{swap\_fee\_denominator} fields. The liquidity providers' ownership proportions should be unchanged when swaps are performed, since liquidity rewards are distributed based on each lp's ownership percentages.
+    \item When a liquidity provider withdraws its liquidity, they get a fraction $f$ of both tokens in the pool corresponding to their ownership fraction, as well as their rewards. Other liquidity providers have their ownership fraction increased accordingly. All the fractions should add up to 1. 
+    \item When a liquidity provider adds liquidity in the pool, they get an ownership fraction $f$ on the pool equal to the proportion of their tokens in the new state of the pool. The implementation of this is detailed in Section 9.
+\end{itemize}
+    If you have implemented liquidity tracking with fractions, then this section should not take too much additional work. Alternatively, we will also accept any design that fulfills the requirements listed below. \\
+
+\textbf{Liquidity Rewards Requirements:}
+\begin{enumerate}
+    \item Your pool must charge the person performing the swap a percentage fee for every swap transaction.\footnote{For reference, the default fee on Uniswap is 0.3\%, whereas centralized exchanges typically charge around 1-4\% to swap currencies.} This percentage is defined for you with private variables \texttt{swap\_fee\_numerator} and \texttt{swap\_fee\_denominator}, as explained above.
+    \item The fee must be taken from \textbf{only} the currency being traded in.
+    \item The fee that is taken out should not influence the exchange rate of your DEX. This means that the value of currency being sent to the trader should correspond to the (amount traded in) - (fee taken out). As an example is 100 ETH is traded in with swap percentage fee $p$, $p*100$ ETH is taken as fee and the trader should be given $(1-p)*100$ worth of tokens.
+    \item \textbf{Basic}: When removing fraction $f$ of the liquidity pools total liquidity, lps should receive fraction $f$ of all current token fees and all current ETH fees. \textit{This is not the case for extra credit implementation as described below.}
+    \item Liquidity providers should not have to take any additional steps to claim their fees beyond calling removeLiquidity. Additionally, liquidity rewards should \textit{not} be sent out of the exchange to the providers each time a swap takes place, since doing so would be prohibitively expensive in practice.
+    \item We will not grade for gas for this part of the assignment, but we encourage you to opt for a solution that minimizes gas costs
+\end{enumerate}
+
+
+After designing and implementing the above section, you should have a fully working exchange! Congratulations! Test your functions using the provided UI in \texttt{index.html}, or write testing code in JavaScript. Implementing this project represents a very impressive achievement, so give yourself a pat on the back. In fact, with some security modifications, you can deploy both your token and your exchange onto the Ethereum mainnet, and thus have an exchange you can call your own!
+
+\subsection{Extra Credit}
+Ordinarily when a fee is taken during a swap, the fee is distributed to the liquidity providers based on their fraction of lp ownership \textbf{at the time the swap took place}. Then whenever an lp removes liquidity, they should receive all the fees that have been distributed to them since they last removed liquidity (or since they entered the pool if they have not removed any liquidity yet). This is different from the basic implementation where they receive the fraction of fees corresponding to the fraction of ownership they are removing. This basic implementation is incorrect because it allows lps to take rewards earned before they entered the pool.
+
+For extra credit, you may chose to correctly implement rewards lps as described above. This means that when lps remove liquidity the fees they receive are based only on swaps that occured while they were liquidity providers. Note that you still should not be sending out liquidity rewards at the time a swap takes place.
+
+\section{Note on Solidity and Javascript Decimals}
+Unlike most programming languages, Solidity does not support floating point arithmetic. To avoid this ether represents ethereum in units of $10^{-18}$ ETH or $1$ WEI. For example, 1 ETH would be represented as $10^{18}$ in the contract. Similarly, 1 wei = $10^{-18}$ ETH, so 1 wei is represented as just 1. Indeed, \textbf{our contracts expect the} \texttt{msg.value} \textbf{field to be in WEI}. Unfortunately, Javascript also has a limit to how large integers can be: Numbers.MAX\_INT = $9 * 10^{15}$. 
+
+To deal with this we use the \texttt{ethers.utils} library to do conversions for us. To convert a value in ETH to the value that solidity wants use the \texttt{ethers.utils.parseEther(string amountEth)} function. This will return the \texttt{BigInt} representation of the amount of WEI that is equivalent to \texttt{amountEth} ETH. This can in turn be passed in as the \texttt{msg.value} to contract calls. For an example of this, look at when the contract function \texttt{createPool} is called in the \texttt{init} function in \texttt{exchange.js}.
+
+\section{Implementation Advice}
+While the overall design of your contract is open-ended, here is some advice that you should take to streamline your implementation process:
+\begin{enumerate}
+    \item To help debugging you can used the \texttt{hardhat/console.sol} package to print out information you wish to in the window that you are running the command \texttt{npx hardhat node} on. Details on how to use this package can be found \hyperlink{https://hardhat.org/tutorial/debugging-with-hardhat-network}{here}.
+    \item \textbf{Keep track of the liquidity providers' proportions, rather than absolute values}. For example, if there is 1000 ETH and 1000 tokens in the pool, and Alice provides 500 ETH and 500 tokens, then Alice is entitled to 500/(500+1000) = 1/3 of the pool. The best way to represent this is through storing the number of shares that each LP has. The pool is initialized to have $10^{5}$ shares and whenever liquidity is added or removed the \texttt{total\_shares} should increase and decrease respectively. In the example above, the \texttt{total\_shares} would increase to $1.5 \times 10^5$ and Alice would have $5 \times 10^4$ shares (1/3 of the pool). During swaps, this share values should not change (even when implementing lp rewards).
+    \item \textbf{Handing edge rounding errors}. Again, since Solidity does not support floating points, we recommend you to \textit{perform multiplication before division} whenever possible. This avoids running into division rounding to 0, and then multiplying to get 0 again. Similarly, with uint types, be sure to \textit{perform addition before subtraction} when possible to prevent underflow. 
+
+    \item \textbf{Using Min/Max Exchange Rates} In Section 6 you are asked to deal with slippage. The suggested implementation involves passing in the exchange rate. However, this value is most likely a floating point value very close to $1$ meaning that it will be subject to underflow. To avoid this issue \textbf{do all comparisons of exchange rates after multiplying the rates provided multipliers} (\texttt{const exchange\_rate\_multiplier} in \texttt{exchange.js} and the \texttt{multiplier} in \texttt{exchange.sol}).  As an example if the exchange rate is 1 and your slippage is 10\%, the min and max exchange rates are $0.9, 1.1$. Pass $0.9 * 10^5, 1.1 * 10^5$ to the solidity contracts and compare accordingly to the current exchange rate $* 10^5$.
+    
+    \item \textbf{Sending ETH to and from the Contract.} In order to successfully transfer ETH from a user account to a contract, the function that handles the transfer must be marked as \texttt{payable}. It is important to note that simply specifying an argument in the contract function to specify an amount of ETH will not transfer the ETH; rather, ETH is transferred via the \texttt{msg.value} parameter. \textbf{In order to avoid simplify your implementation, please use \texttt{ethers.utils.parseEther(string amountEther)} when passing in ETH into the contract}. Similarly, if you want to send ETH from the contract to the user address, then you can use the \texttt{payable()} function appropriately. More details can be found \hyperlink{https://solidity-by-example.org/payable/}{here}.
+    
+    \item \textbf{Accessing the contract address.} You can get the contract's address in Solidity by calling \texttt{address(this)}.
+    
+    \item \textbf{Access the contract's token and ETH amounts.} While you can calculate your contract's token and ETH amounts by hand while performing intermediate calculations, you can access the true balances with the following functions:
+    \begin{itemize}
+        \item ETH balance: \texttt{address(this).balance}
+        \item Token balance: \texttt{token.balanceOf(address(this))}
+    \end{itemize}
+    Note that when implementing fees these values will include fees!
+    
+    \item \textbf{Javascript Async Functions}. It is important to note that all Solidity function calls will be async from the backend. Thus, in \texttt{exchange.js}, in order to call a function from the contract and get the output, be sure to use the \texttt{await} keyword, such as \texttt{var num = await token\_contract.function(args)}.
+    
+    \item \textbf{Security of the Contract}. Remember, since all deployed contracts are public on the chain, it is important to keep your contract safe. While we will not be actively testing your contract for security, we still expect to see some defenses via using \texttt{require()} or \texttt{assert()} statements. 
+
+    \item \textbf{Extra Credit: Iterating through mapping keys.} Solidity does not support iterating through keys of a mapping. Thus, we define \texttt{address[] private lp\_providers} for you to store the addresses of liquidity providers. In addition, remember that Solidity arrays do not automatically "shift" all elements when a value in the middle of the array is removed. Thus, we provide a helper function \texttt{removeLP()} that removes a liquidity provider from the array while filling the "gap". This will update \texttt{lp\_providers.length} accordingly. Be careful when calling this function while you are iterating through the array, however, as it is risky to change the length of the array while iterating through it if you want to reach every element. 
+\end{enumerate}
+
+\section{Sanity Check}
+In order to test your implementation, we have implemented two sanity check programs that run depending on whether you have implemented liquidity rewards. We check this value by reading the \texttt{swap\_fee\_numerator} value in \texttt{exchange.sol}: if that value is 0, then we assume you have not implemented swap fees and liquidity rewards. \\
+
+To enable sanity check, uncomment the \texttt{setTimeout()} function with \texttt{sanityCheck()}, and refresh the page. We tried to design the sanityCheck to run properly even after the first load, so you do not need to redeploy the contracts and reset the pool state every time you want to run sanityCheck. However, due to rounding errors, there might be a point in which the sanityCheck passes when the exchange rate is 1:1 but not with your current exchange status. Your sanityCheck evaluates your implementation  assuming the initial pool state is -- the exchange rate between tokens is 1:1, and there are 5000 ETH and 5000 tokens in the pool.\\
+
+\textbf{These sanity checks are extremely approximate and do not indicate that your solution is correct if you pass them. Please do not reverse engineer the sanity checks to understand how you should be implementing your assignments as this will be misleading. Reach out to a course instructor with any questions.}
+
+\section{Design Document}
+Please fill in \texttt{DesignDoc.txt} with your answers to the following questions:
+\begin{enumerate}
+    \item Explain why adding and removing liquidity to your exchange does not change the exchange rate.
+    \item Explain your scheme for rewarding liquidity providers and justify the design decisions you made. How does it satisfy the liquidity rewards requirements outlined in Section 7?
+    \item Describe at least one method you used to minimize your exchange contract's gas usage. Why was this method effective?
+    \item Optional Feedback
+    \begin{enumerate}
+        \item How much time did you spend on the assignment?
+        \item  What is one thing that would have been useful to know before starting the assignment?
+        \item If you could change one with about this assignment, what would you change?
+        \item Please feel free to include any other feedback you may have.
+    \end{enumerate}
+\end{enumerate}
+
+\section{Submission}
+When you are ready to submit, please upload a .zip file of your entire project to Gradescope. To do so, navigate to the root folder for the project and zip the entire folder. Be sure to \textbf{only include the following files} in your project zip: \texttt{exchange.js}, \texttt{exchange.sol}, \texttt{token.sol}, and \texttt{DesignDoc.txt}. If you added or changed any other files, please be sure to include those files as well. To make the zip first run \texttt{chmod +x ./make\_submit.sh} then run \texttt{./make\_submit.sh}. 
+
+You are allowed to work with 1 project partner (team size $\le$ 2). Don't forget to add your project partner to your Gradescope submissions. If you are using late days for this project, make sure that both partners have enough late days remaining according to class policy on the website.  
+\end{document}

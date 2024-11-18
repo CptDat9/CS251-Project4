@@ -1,0 +1,118 @@
+/* Reset mặc định */
+body, h1, h2, h3, h4, h5, h6, p, pre {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	color: #333;
+  }
+  
+  /* Tổng thể */
+  body {
+	background-color: #f4f4f9;
+	margin: 0;
+	padding: 0;
+	font-size: 16px;
+  }
+  
+  /* Header */
+  #header {
+	background-color: #fff; /* Nền trắng */
+	color: #d32f2f; /* Chữ đỏ */
+	padding: 20px 0;
+	text-align: center;
+  }
+  
+  #header h1 {
+	font-size: 2.5em;
+	margin-bottom: 10px;
+  }
+  
+  #header h2 {
+	font-size: 1.2em;
+	font-weight: 300;
+  }
+  
+  /* Panel */
+  .panel {
+	background-color: #ffffff;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	margin: 20px;
+	border-radius: 10px;
+  }
+  
+  .panel_right {
+	position: absolute;
+	right: 20px;
+	top: 120px;
+	width: 20%;
+  }
+  
+  #main {
+	margin: 0 auto;
+	padding: 20px;
+	max-width: 800px;
+  }
+  
+  /* Rate & Liquidity Display */
+  #rate-display, #liquidity-display {
+	margin: 20px 0;
+	padding: 20px;
+	background-color: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1, h3 {
+	margin-bottom: 10px;
+  }
+  
+  /* Swap and Liquidity Control */
+  #swap-control, #liquidity-control {
+	margin-top: 20px;
+	padding: 20px;
+	background-color: #ffffff;
+	border-radius: 10px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: bold;
+  }
+  
+  input[type="text"] {
+	width: calc(100% - 20px);
+	padding: 10px;
+	margin-bottom: 15px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+  }
+  
+  button {
+	background-color: #d32f2f; /* Nút màu đỏ */
+	color: #fff;
+	border: none;
+	padding: 10px 15px;
+	font-size: 1em;
+	cursor: pointer;
+	border-radius: 5px;
+	transition: background-color 0.3s;
+  }
+  
+  button:hover {
+	background-color: #b71c1c; /* Đỏ đậm hơn khi hover */
+  }
+  
+  /* Log Panel */
+  #log {
+	margin-top: 20px;
+	padding: 10px;
+	background-color: #e8e8e8;
+	border-radius: 10px;
+	font-family: monospace;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+  }
+  
