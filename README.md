@@ -128,6 +128,8 @@ npx hardhat run scripts/deploy.js
 ## Minh họa
 ![image](https://github.com/user-attachments/assets/46909f7b-a20a-4ebe-a7cf-dfff0d90b6b5)
 ![image](https://github.com/user-attachments/assets/b02dd1e5-4a53-4b2f-a8a3-3b71b727ed59)
+![image](https://github.com/user-attachments/assets/71ad52cb-7553-4d19-a8ed-1d703029a0f0)
+
 
 
 
