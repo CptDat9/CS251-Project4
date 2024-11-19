@@ -121,7 +121,7 @@ npx hardhat run scripts/deploy.js
 ### Smart Contracts (contracts/):
 - Các hợp đồng DEX triển khai bằng Solidity.
 - Bao gồm hợp đồng quản lý thanh khoản và swap.
-##Thông tin bổ sung
+## Thông tin bổ sung
 - Git: Dùng để quản lý và theo dõi các thay đổi của project.
 - Hardhat Network: Cho phép thử nghiệm tính năng mà không cần sử dụng phí gas thực.
 - BSC Testnet: Là môi trường triển khai chính của dự án này.
