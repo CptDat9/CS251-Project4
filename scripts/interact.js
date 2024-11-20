@@ -2,8 +2,9 @@
 import hre from "hardhat";
 import { ethers } from "hardhat";
 import { TokenExchange__factory, Token__factory } from "../../typechain-types";
-//Chua dung dc typechain
-// Gói
+// Gói, luuw ys import type chain can 2 dau __ de phan biet voi contract.
+//Factory trong TypeChain là lớp tự động sinh ra để giúp bạn tương tác với các hợp đồng thông minh.
+//__factory là phần hậu tố giúp phân biệt lớp Factory và hợp đồng thông minh thực tế.
 async function main(){
     const deployer = await hre.ethers.provider.getSigner(0);
         // Lay nguoi giao dich dau danh sách.
