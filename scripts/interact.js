@@ -22,7 +22,7 @@ async function main(){
     // kiem tra so du trong pool
     const [ethReserves, tokenReserves] = await exchange.getReserves();
     console.log(`ETH Reserves in pool (Tổng ETH's liquid trong pool): ${ethers.utils.formatEther(ethReserves)}`);
-    console.log(`Token Reserves in pool (Tổng Token's liquid trong pool): ${ethers.utils.formatUnits(tokenReserves, 18)}`);
+    console.log(`Token Reserves in pool (Tổng Token's liquid trong pool): ${ethers.utils.formatUnits(tokenReserves, 18)}`); 
     // // Lấy tỷ lệ phí swap
     const [swapFeeNumerator, swapFeeDenominator] = await exchange.getSwapFee();
     console.log(`Swap Fee: ${swapFeeNumerator}/${swapFeeDenominator}`);
@@ -32,9 +32,9 @@ async function main(){
     console.log(`User balance (số dư người dùng) là: ${ethers.utils.formatUnits(userBalance, 18)} tokens`);
     // them ETH vao pool.
     const amountEth = ethers.utils.parseEther("1.0"); // 1 ETH
-    const minRate = ethers.utils.parseUnits("3000", 18); // Min rate
+    const minRate = ethers.utils.parseUnits("3000", 18); // Min rate  
     const maxRate = ethers.utils.parseUnits("3500", 18); // Max rate
-
+// tức là cho phép hoán đổi ở mức 1ETH = 3000 -> 3500 token.
     // tính toán lượng token cần để duy trì tỉ lệ trong pool.
     const [ethReserve, tokenReserve] = await exchange.getReserves();
     const tokenAmount = amountEth.mul(tokenReserve).div(ethReserve);
@@ -52,7 +52,23 @@ const txAddLiquidity = await exchange.addLiquidity(minRate, maxRate, {
   console.log(`Adding liquidity... Tx Hash: ${txAddLiquidity.hash}`);
   await txAddLiquidity.wait();
   console.log("Liquidity added!");
-  
+   // Test chức năng remove liquidity: 
+    const userLP = await exchange.lps(deployer.address);
+    console.log(`Liquidity pool shares of the user: ${ethers.utils.formatUnits(userLP, 18)}`); // Decimals : 18
+
+    // Giả sử muốn rút 0.5 ETH thanh khoản
+    const removeAmountEth = ethers.utils.parseEther("0.5");
+    const txRemoveLiquidity = await exchange.removeLiquidity(removeAmountEth, minRate, maxRate);
+    console.log(`Removing liquidity... (rút lượng thanh khoản của người dùng trong pool) Tx Hash: ${txRemoveLiquidity.hash}`);
+    await txRemoveLiquidity.wait();
+    console.log("Liquidity removed!");
+
+    // Test chức năng remove tất cả thanh khoản của người dùng
+    const txRemoveAllLiquidity = await exchange.removeAllLiquidity(minRate, maxRate);
+    console.log(`Removing all liquidity... Tx Hash: ${txRemoveAllLiquidity.hash}`);
+    await txRemoveAllLiquidity.wait();
+    console.log("All liquidity removed (Đã rút hết thanh khoản của người dùng)!");
+
   
     // swap ETH lấy tokens
     const swapAmountEth = ethers.utils.parseEther("0.1"); // 0.1 ETH
@@ -62,8 +78,14 @@ const txAddLiquidity = await exchange.addLiquidity(minRate, maxRate, {
     console.log(`Swapping ETH for tokens... Tx Hash: ${txSwap.hash}`);
     await txSwap.wait();
     console.log("Swap thành công!");
-  }
   
+// Swap token lấy ETh
+    const swapAmountToken = ethers.utils.parseUnits("500" , 18);
+    const txSwapTokensForEth  = await exchange.swapTokensForETH(swapAmountToken, maxRate);
+    console.log(`Swapping tokens for ETH...(Swap token lay ETH) Tx Hash: ${txSwapTokensForEth .hash}`);
+    await txSwapTokensForEth.wait();
+    console.log("Swap successful!");
+  }
   main()
     .then(() => process.exit(0))
     .catch((error) => {
