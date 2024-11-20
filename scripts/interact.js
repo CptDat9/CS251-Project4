@@ -5,7 +5,7 @@ import { TokenExchange__factory, Token__factory } from "../../typechain-types";
 //Chua dung dc typechain
 // Gói
 async function main(){
-    const [deployer] = await hre.ethers.getSigners();
+    const deployer = await hre.ethers.provider.getSigner(0);
     // Xac thuc nguoi giao dich, dung khi can test nhieu tai khoan cung luc.
     /*
     const deployer = await hre.ethers.provider.getSigner(0);
