@@ -6,10 +6,10 @@ import { TokenExchange__factory, Token__factory } from "../../typechain-types";
 // Gói
 async function main(){
     const deployer = await hre.ethers.provider.getSigner(0);
-    // Xac thuc nguoi giao dich, dung khi can test nhieu tai khoan cung luc.
+        // Lay nguoi giao dich dau danh sách.
     /*
-    const deployer = await hre.ethers.provider.getSigner(0);
-    // Lay nguoi giao dich dau danh sách.
+    const [deployer] = await hre.ethers.provider.getSigner();
+     // Xac thuc nguoi giao dich, dung khi can test nhieu tai khoan cung luc.
     */
    //Tao mot Instance cuar TokenExchange.(đối tượng)
     const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
