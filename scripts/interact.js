@@ -18,6 +18,12 @@ async function main(){
     const exchange = TokenExchange__factory.connect(exchangeAddress, deployer);
    //Kiểm tra tên của DEX
     const exchangeName = await exchange.exchange_name();
+      /*
+    exchange.sol:
+        string public exchange_name = 'CDSwap';
+
+    Khi do no se tu tao 1 getter function ten la ham exchange_name, nen vx dung dc.
+    */
     console.log(`Exchange Name: ${exchangeName}`); //    string public exchange_name = 'CDSwap';
 
     // kiem tra so du trong pool
